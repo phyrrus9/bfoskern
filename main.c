@@ -213,7 +213,8 @@ cmain (unsigned long magic, unsigned long addr)
 					if (tmp == ']')
 					{
 						programs[pn].program[programs[pn].pc].operand = POP();
-						programs[pn].program[programs[pn].pc].operand = programs[pn].pc;
+						//programs[pn].program[programs[pn].pc].operand = programs[pn].pc;
+						programs[pn].program[programs[pn].program[programs[pn].pc].operand].operand = programs[pn].pc
 					}
 					programs[pn].program[programs[pn].pc].operator = tmp;
 					putch(programs[pn].program[programs[pn].pc].operator);
