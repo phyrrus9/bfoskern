@@ -141,41 +141,37 @@ cmain (unsigned long magic, unsigned long addr)
 			puts(UCH "\nDebugging...\n");
 			for (i = 0; i < programs[pn].pc; i++)
 			{
-				putch(programs[pn].program[i].operator);
-				getch();
-				if (programs[pn].program[i].operator == '+')
+				//putch(programs[pn].program[i].operator);
+				//getch();
+				switch(programs[pn].program[i].operator)
 				{
-					data[dp]++;
-				}
-				if (programs[pn].program[i].operator == '-')
-				{
-					data[dp]--;
-				}
-				if (programs[pn].program[i].operator == '<')
-				{
-					dp--;
-				}
-				if (programs[pn].program[i].operator == '>')
-				{
-					dp++;
-				}
-				if (programs[pn].program[i].operator == '.')
-				{
-					putch(data[dp]);
-				}
-				if (programs[pn].program[i].operator == ',')
-				{
-					data[dp] = getch();
-				}
-				if (programs[pn].program[i].operator == '[')
-				{
-					puts(UCH "Entering loop\n");
-					if (data[dp] == 0) i = programs[pn].program[i].operand;
-				}
-				if (programs[pn].program[i].operator == ']')
-				{
-					puts(UCH "Exiting loop\n");
-					if (data[dp] != 0) i = programs[pn].program[i].operand;
+					case '+':
+						data[dp]++;
+						break;
+					case '-':
+						data[dp]--;
+						break;
+					case '<':
+						dp--;
+						break;
+					case '>':
+						dp++;
+						break;
+					case '.':
+						putch(data[dp]);
+						break;
+					case ',':
+						data[dp] = getch();
+						break;	
+					case '[':
+						puts(UCH "Entering loop\n");
+						if (data[dp] == 0) i = programs[pn].program[i].operand;
+						break;
+					case ']':
+						puts(UCH "Exiting loop\n");
+						if (data[dp] != 0) i = programs[pn].program[i].operand;
+						break;
+					default: break;
 				}
 			}
 			//puts(UCH "\n\n\nContinuing kernel execution\n");
