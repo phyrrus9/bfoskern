@@ -1,10 +1,10 @@
 CFLAGS  := -m32 -fno-stack-protector -fno-builtin -nostdinc -O -g -Wall -I.
 LDFLAGS := -melf_i386 -nostdlib -Wl,-N -Wl,-Ttext -Wl,100000
 
-all:	/boot/kernel.bin
+all:	kernel.bin
 
-/boot/kernel.bin:	start.o	main.o scrn.o kbd.o io.o
-	ld -melf_i386 -T link.ld -o /boot/kernel.bin start.o main.o scrn.o kbd.o io.o
+kernel.bin:	start.o	main.o scrn.o kbd.o io.o
+	ld -melf_i386 -T link.ld -o kernel.bin start.o main.o scrn.o kbd.o io.o
 	@echo Done!
 
 kernel2.bin: start.asm main.c scrn.c start.o
@@ -29,3 +29,6 @@ io.o: io.c system.h
 clean: 
 	rm -f *.o *.bin
 	rm -f /boot/kernel.bin
+
+install: kernel.bin
+	mv kernel.bin /boot/

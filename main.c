@@ -63,22 +63,9 @@ typedef struct __program
 {
 	char name[32];
 	instruction_t program[512];
-	unsigned int pc;
+	unsigned int pc, dp;
+	unsigned short data[128];
 } program_t;
-
-void init_data(instruction_t * program, unsigned short * data, unsigned int * stack, unsigned int * sp, unsigned int * dp, unsigned int * pc)
-{
-	return;
-	int i;
-	for (i = 0; i < 64;   i++) {  program[i].operator = 0;
-                                      program[i].operand  = 0;
-				   }
-	for (i = 0; i < 64;   i++)    stack  [i]          = 0;
-	for (i = 0; i < 128;  i++)    data   [i]          = 0;
-	                             *dp                  = 0;
-                                     *pc                  = 0;
-                                     *sp                  = 0;
-}
 
 
 int strcmp(char * a, char * b)
@@ -90,6 +77,67 @@ int strcmp(char * a, char * b)
 		if (a[i] != b[i]) return 2;
 	}
 	return 0;
+}
+
+void execute_bf(program_t * programs, char * name)
+{
+	int pn = 0, i;
+	puts(UCH "Looking for program named ");
+	puts(UCH name);
+	puts(UCH "\n");
+	for (i = 0; i < 3; i++)
+	{
+		puts(UCH "Found program ");
+		puts(UCH programs[i].name);
+		puts(UCH "\n");
+		if (strcmp(name, programs[i].name) == 0)
+		pn = i;
+	}
+	if (pn == 0)
+	{
+		puts(UCH "Program not found!\n");
+		return;
+	}
+	//cls();
+	for (i = 0; i < 128; i++) programs[pn].data[i] = 0;
+	programs[pn].dp = 0;
+	puts(UCH "\nDebugging...\n");
+	for (i = 0; i < programs[pn].pc; i++)
+	{
+		//putch(programs[pn].program[i].operator);
+		//getch();
+		switch(programs[pn].program[i].operator)
+		{
+			case '+':
+				programs[pn].data[programs[pn].dp]++;
+				break;
+			case '-':
+				programs[pn].data[programs[pn].dp]--;
+				break;
+			case '<':
+				programs[pn].dp--;
+				break;
+			case '>':
+				programs[pn].dp++;
+				break;
+			case '.':
+				putch(programs[pn].data[programs[pn].dp]);
+				break;	
+			case ',':
+				programs[pn].data[programs[pn].dp] = getch();
+				break;	
+			case '[':
+				puts(UCH "Entering loop\n");
+				if (programs[pn].data[programs[pn].dp] == 0) i = programs[pn].program[i].operand;
+				break;
+			case ']':
+				puts(UCH "Exiting loop\n");
+				if (programs[pn].data[programs[pn].dp] != 0) i = programs[pn].program[i].operand;
+				break;
+			default: break;
+		}
+	}
+	//puts(UCH "\n\n\nContinuing kernel execution\n");
 }
 
 /* This is a very simple main() function. All it does is print stuff
@@ -104,11 +152,8 @@ cmain (unsigned long magic, unsigned long addr)
 	unsigned char opt;
 	unsigned char tmp;
 	program_t programs[3];
-	unsigned short data[128];
-	unsigned int dp = 0;
 	unsigned int sp = 0;
 	unsigned int pn = 0;
-	unsigned int i;
 	unsigned int stack[64];
 	init_video();
 	while (1)
@@ -128,53 +173,9 @@ cmain (unsigned long magic, unsigned long addr)
 				putch(tmp);
 				name[np++] = tmp;
 			}
+			name[np] = 0;
 			putch(0x0A);
-			for (i = 0; i < 3; i++)
-			{
-				if (strcmp(name, programs[i].name) == 0)
-					pn = i;
-			}
-			//init_data(programs[0].program, data, stack, &sp, &dp, &programs[0].pc);
-			//pc = programs[pn].pc;
-			//cls();
-			for (i = 0; i < 128; i++) data[i] = 0;
-			puts(UCH "\nDebugging...\n");
-			for (i = 0; i < programs[pn].pc; i++)
-			{
-				//putch(programs[pn].program[i].operator);
-				//getch();
-				switch(programs[pn].program[i].operator)
-				{
-					case '+':
-						data[dp]++;
-						break;
-					case '-':
-						data[dp]--;
-						break;
-					case '<':
-						dp--;
-						break;
-					case '>':
-						dp++;
-						break;
-					case '.':
-						putch(data[dp]);
-						break;
-					case ',':
-						data[dp] = getch();
-						break;	
-					case '[':
-						puts(UCH "Entering loop\n");
-						if (data[dp] == 0) i = programs[pn].program[i].operand;
-						break;
-					case ']':
-						puts(UCH "Exiting loop\n");
-						if (data[dp] != 0) i = programs[pn].program[i].operand;
-						break;
-					default: break;
-				}
-			}
-			//puts(UCH "\n\n\nContinuing kernel execution\n");
+			execute_bf(programs, name);
 		}
 		else if (opt == '1')
 		{
