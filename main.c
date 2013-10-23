@@ -53,6 +53,21 @@ void outportb (unsigned short _port, unsigned char _data)
     __asm__ __volatile__ ("outb %1, %0" : : "dN" (_port), "a" (_data));
 }
 
+void readfloppy(void * buf)
+{
+	__asm__("mov $0x02, %ah\n\t"
+		"mov $0x01, %al\n\t"
+		"mov $0x00, %ch\n\t"
+		"mov $0x01, %cl\n\t"
+		"mov $0x00, %dh\n\t"
+		"mov $0x00, %dl\n\t"
+		"mov %0, %%es\n\t"
+		"mov $0x00, %bs\n\t"
+		"int 0x13" : "=m"(buf) );
+
+	//__asm__ __volatile__ ("mov $2, %ah");
+}
+
 typedef struct __instruction
 {
 	unsigned char operator;
